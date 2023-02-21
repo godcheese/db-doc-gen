@@ -1,0 +1,196 @@
+{{ define "default/doc" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据库字典生成器</title>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 10px;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            font-family: sans-serif;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+            background-color: #fff;
+        }
+
+        table {
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 20px;
+            background-color: transparent;
+            border-collapse: collapse;
+            border-spacing: 0;
+
+        }
+
+        table > tbody > tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        table:last-child {
+            margin-bottom: 0;
+        }
+
+        /*table.first-child>tr {*/
+        /*    position: sticky;*/
+        /*}*/
+        table > thead:first-child > tr:first-child > th {
+            border-top: 0;
+            position: sticky;
+        }
+
+        table > thead > tr > td, table > thead > tr > th {
+            border-bottom-width: 2px;
+        }
+
+        table > tbody > tr > td, table > tbody > tr > th, table > tfoot > tr > td, table > tfoot > tr > th, table > thead > tr > td, table > thead > tr > th {
+            border: 1px solid #ddd;
+        }
+
+        table > thead > tr > th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #ddd;
+        }
+
+        table > tbody > tr > td, table > tbody > tr > th, table > tfoot > tr > td, table > tfoot > tr > th, table > thead > tr > td, table > thead > tr > th {
+            padding: 5px;
+            /*line-height: 1.42857143;*/
+            vertical-align: center;
+            border-top: 1px solid #ddd;
+        }
+
+        th {
+            text-align: left;
+        }
+
+        td, th {
+            padding: 0;
+        }
+
+        .db-list {
+            float: left !important;
+            /*width: 25%;*/
+            width: 280px;
+            position: fixed;
+            /*top: 20px;*/
+
+        }
+
+        .db {
+            margin-right: 0;
+            margin-left: 0;
+            background-color: #fff;
+            border-color: #ddd;
+            border-width: 1px;
+            border-radius: 4px 4px 0 0;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            width: 81%;
+            float: right !important;
+        }
+
+        .db-table {
+            /*padding: 10px 0;*/
+        }
+
+        a {
+            color: #333333;
+            text-decoration: none;
+        }
+
+        a:hover, a:visited {
+            text-decoration: underline;
+
+        }
+
+        a:visited {
+            color: #333333;
+        }
+
+        /*::selection{*/
+        /*    text-decoration: underline;*/
+        /*    font-weight: 600;*/
+        /*}*/
+    </style>
+</head>
+<body>
+
+<div class="db-list">
+    <div>
+        <h3>数据库字典生成器 <small><a href="/gen-doc?redirect=/doc/doc.html">重新生成</a></small></h3>
+    </div>
+    <ul style="list-style-type: none;padding: 0 10px 0;overflow-y:auto;height: 600px">
+        {{ range .Databases }}
+        <li>
+            <a href="#{{.Name.String }}-database" style="font-weight: 600">{{.Name.String}}</a>
+            <ul style="list-style-type: none;padding: 0 10px 0;">
+                {{ range .Tables }}
+                <li><a href="#{{.Name.String}}-table">{{ .Name.String }}（{{ .Comment.String }}）</a></li>
+                {{ end }}
+            </ul>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+
+{{ range .Databases }}
+<div class="db">
+    <p id="{{.Name.String }}-database" style="padding: 25px 0 0">数据库名：{{.Name.String}} |
+        默认字符编码：{{.DefaultCharacterSetName.String}} | 默认字符集：{{.DefaultCollationName.String}}</p>
+    {{ range .Tables }}
+    <div class="db-table">
+        <p id="{{.Name.String }}-table" style="padding: 20px 0 0">表名：{{ .Name.String }} | 注释：{{ .Comment.String}} |
+            字符集：{{
+            .CollationName.String }} | 创建时间：{{ .CreateTime.String }}</p>
+        <table>
+            <thead>
+            <tr>
+                <td>字段名</td>
+                <td>字段类型</td>
+                <td>是否可为 null</td>
+                <td>是否为主键</td>
+                <td>字符编码</td>
+                <td>字符集</td>
+                <td>默认值</td>
+                <td>扩展</td>
+                <td>注释</td>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range .Columns }}
+            <tr>
+                <td class="db-field">{{.Name.String}}</td>
+                <td>{{.Type.String}}</td>
+                <td>{{.Nullable.String}}</td>
+                <td>{{.Primary.String}}</td>
+                <td>{{.CharacterSetName.String}}</td>
+                <td>{{.CollationName.String}}</td>
+                <td>{{.Default.String}}</td>
+                <td>{{.Extra.String}}</td>
+                <td>{{.Comment.String}}</td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{ end }}
+</div>
+{{ end }}
+</body>
+</html>
+{{end}}
